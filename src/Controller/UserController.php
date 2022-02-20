@@ -104,8 +104,12 @@ class UserController extends AbstractController
 
   private function validateProperties(Array $propertieList, Object $sendedFields) 
   {
-    foreach ($propertieList as $propertie)
+    foreach ($propertieList as $propertie) {
       if (!property_exists($sendedFields, $propertie))
         throw new Exception("O campo {$propertie} deve ser preenchido", 400);
+      
+      if (!strlen($sendedFields->{$propertie}))
+        throw new Exception("O campo {$propertie} não pode ficar em branco.", 400);
+    }
   }
 }

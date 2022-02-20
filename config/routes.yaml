@@ -6,3 +6,8 @@ list_users:
   path: /users
   controller: App\Controller\UserController::index
   methods: GET
+
+create_user:
+  path: /users
+  controller: App\Controller\UserController::create
+  methods: POST

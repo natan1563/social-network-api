@@ -13,6 +13,13 @@ class UserController extends AbstractController
 {
   private ObjectManager $entityManager;
 
+  private Array $requiredFields = [
+    'username',
+    'celphone',
+    'name',
+    'birthday'
+  ];
+
   public function __construct(ManagerRegistry $entityManager)
   {
     $this->entityManager = $entityManager->getManager();
@@ -32,14 +39,8 @@ class UserController extends AbstractController
   {
     try {
       $requestBody = json_decode($request->getContent());
-      $requiredFields = [
-        'username',
-        'celphone',
-        'name',
-        'birthday'
-      ];
 
-      $this->validateProperties($requiredFields, $requestBody);
+      $this->validateProperties($this->requiredFields, $requestBody);
 
       $userRepository = $this->entityManager->getRepository(User::class);
       $this->usernameVerify($requestBody->username);
@@ -61,6 +62,34 @@ class UserController extends AbstractController
     }
   }
 
+  public function update(Request $request, int $id): Response 
+  {
+    try {
+      $userRepository = $this->entityManager->getRepository(User::class);
+      $user = $userRepository->find($id);
+
+      if (!$user) {
+        throw new Exception("Usuário não encontrado.", 404);
+      }
+
+      $requestBody = json_decode($request->getContent());
+      $this->validateProperties($this->requiredFields, $requestBody);
+      $this->usernameVerify($requestBody->username, $id);
+      $this->celphoneVerify($requestBody->celphone, $id);
+      
+      $user->setUsername($requestBody->username);
+      $user->setCelphone($requestBody->celphone);
+      $user->setName($requestBody->name);
+      $user->setBirthDay(new DateTime($requestBody->birthday));
+
+      $this->entityManager->flush();
+      $createdUser = $this->getFormattedUsers([$userRepository->findOneBy(['username' => $user->getUsername()])]);
+      return new JsonResponse(['user' => $createdUser], 200);
+    } catch (Exception $e) {
+      return $this->handlerError($e->getMessage(), $e->getCode());
+    }
+  }
+
   public function getFormattedUsers(Array $userData) {
     $response = [];
     foreach ($userData as $user) {
@@ -73,22 +102,31 @@ class UserController extends AbstractController
     return $response;
   }
 
-  private function usernameVerify(String $username)
+  private function usernameVerify(String $username, Int $id = null)
   {
     $userRepository = $this->entityManager->getRepository(User::class);
+    $hasUser = (!is_null($id)) ? $userRepository->find($id) : null;
+    $userNameIsAvailable = (is_null($hasUser) || ($hasUser instanceof User) && $hasUser->getUsername() !== $username);
 
-    if ($userRepository->findOneBy(['username' => $username]))
+    if ($userRepository->findOneBy(['username' => $username]) && $userNameIsAvailable) {
       throw new Exception('Usuário já possui cadastro', 409);
+    }
+
   }
 
-  private function celphoneVerify(String $celphone)
+  private function celphoneVerify(String $celphone, Int $id = null)
   {
     if (strlen($celphone) > 11) 
       throw new Exception('O numero de telefone deve ter no máximo 11 caracteres.', 400);
 
-    $userRepository = $this->entityManager->getRepository(User::class);
+    if (!is_numeric($celphone))
+      throw new Exception('O telefone deve conter apenas numeros.', 400);
 
-    if ($userRepository->findOneBy(['celphone' => $celphone]))
+    $userRepository = $this->entityManager->getRepository(User::class);
+    $hasUser = (!is_null($id)) ? $userRepository->find($id) : null;
+    $celphoneIsAvailable = (is_null($hasUser) || ($hasUser instanceof User) && $hasUser->getCelphone() !== $celphone);
+
+    if ($userRepository->findOneBy(['celphone' => $celphone]) &&  $celphoneIsAvailable)
       throw new Exception('Telefone já cadastrado.', 409);
   }
 

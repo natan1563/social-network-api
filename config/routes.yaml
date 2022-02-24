@@ -11,3 +11,8 @@ create_user:
   path: /users
   controller: App\Controller\UserController::create
   methods: POST
+
+update_user:
+  path: /users/{id}
+  controller: App\Controller\UserController::update
+  methods: PUT

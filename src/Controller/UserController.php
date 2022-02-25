@@ -35,6 +35,21 @@ class UserController extends AbstractController
     }
   }
 
+  public function show(Int $id): Response 
+  {
+    try {
+      $user = $this->entityManager->getRepository(User::class)->find($id);
+
+      if (is_null($user)) 
+        throw new Exception('Usuário não encontrado', 404);
+
+      return new JsonResponse(['user' => $this->getFormattedUsers([$user])]);
+    } catch (Exception $e) {
+      $code = ($e->getCode()) ? $e->getCode() : 500;
+      return $this->handlerError($e->getMessage(), $code);
+    }
+  }
+
   public function create(Request $request): Response
   {
     try {
@@ -109,7 +124,7 @@ class UserController extends AbstractController
     $userNameIsAvailable = (is_null($hasUser) || ($hasUser instanceof User) && $hasUser->getUsername() !== $username);
 
     if ($userRepository->findOneBy(['username' => $username]) && $userNameIsAvailable) {
-      throw new Exception('Usuário já possui cadastro', 409);
+      throw new Exception('Usuário já cadastrado', 409);
     }
 
   }
@@ -132,7 +147,7 @@ class UserController extends AbstractController
 
   private function handlerError(String $message, Int $statusCode): JsonResponse 
   {
-    if ($statusCode <= 0 || $statusCode > 500) {
+    if ($statusCode <= 0 || $statusCode >= 500) {
       $statusCode = 500;
       $message = 'Erro interno no servidor, por favor tente novamente mais tarde!';
     }

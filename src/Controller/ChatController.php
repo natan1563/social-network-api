@@ -18,15 +18,15 @@ class ChatController extends BaseController
         return new JsonResponse(['chats' => $allChats], 200);
     }
 
-    public function getFormattedChats(Array $userData) {
+    public function getFormattedChats(Array $chatList) {
         $response = [];
-        foreach ($userData as $user) {
-          if (!$user instanceof Chat) {
+        foreach ($chatList as $chat) {
+          if (!$chat instanceof Chat) {
             continue;
           }
-          array_push($response, $user->getChatData());
+          array_push($response, $chat->getChatData());
         }
     
         return $response;
-      }
+    }
 }

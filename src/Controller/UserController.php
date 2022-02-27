@@ -7,14 +7,10 @@ use App\Factory\{ValidatorFactory, ErrorFactory};
 use DateTime;
 use Exception;
 use Doctrine\Persistence\{ManagerRegistry, ObjectManager};
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\{ Request, Response, JsonResponse };
 
-class UserController extends AbstractController
+class UserController extends BaseController
 {
-  private ObjectManager $entityManager;
-  private ValidatorFactory $validator;
-  private ErrorFactory $errorManager;
 
   private Array $requiredFields = [
     'username',
@@ -22,17 +18,6 @@ class UserController extends AbstractController
     'name',
     'birthday'
   ];
-
-  public function __construct(
-    ManagerRegistry $entityManager,
-    ValidatorFactory $validator,
-    ErrorFactory $error
-    )
-  {
-    $this->entityManager = $entityManager->getManager();
-    $this->validator = $validator;
-    $this->errorManager = $error;
-  }
 
   public function index() {
     try {

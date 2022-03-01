@@ -55,4 +55,10 @@ class ValidatorFactory
         throw new Exception("O campo {$propertie} não pode ficar em branco.", 400);
     }
   }
+
+  public function validateRequestFormat(Object $requestBody)
+  {
+    if (is_null($requestBody))
+      throw new Exception("Ops! Parece que algo foi enviado de forma errada, tente novamente!", 400);
+  }
 }

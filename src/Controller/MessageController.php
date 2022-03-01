@@ -34,8 +34,7 @@ class MessageController extends BaseController
     {
       try {
         $requestBody = json_decode($request->getContent());
-        
-        $this->validator->validateRequestFormat($requestBody);
+
         $this->validator->validateProperties(self::REQUIRED_FIELDS, $requestBody);
 
         $messageEntity = new Message();

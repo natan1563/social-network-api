@@ -47,6 +47,7 @@ class ValidatorFactory
   
   public function validateProperties(Array $propertieList, Object $sendedFields) 
   {
+    $this->validateRequestFormat($sendedFields);
     foreach ($propertieList as $propertie) {
       if (!property_exists($sendedFields, $propertie))
         throw new Exception("O campo {$propertie} deve ser preenchido", 400);
@@ -56,7 +57,7 @@ class ValidatorFactory
     }
   }
 
-  public function validateRequestFormat(Object $requestBody)
+  private function validateRequestFormat(Object $requestBody)
   {
     if (is_null($requestBody))
       throw new Exception("Ops! Parece que algo foi enviado de forma errada, tente novamente!", 400);

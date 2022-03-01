@@ -21,3 +21,15 @@ update_user:
   path: /users/{id}
   controller: App\Controller\UserController::update
   methods: PUT
+
+#Message Routes
+
+list_messages:
+  path: /messages/{chatId}
+  controller: App\Controller\MessageController::index
+  methods: GET
+
+save_message:
+  path: /messages
+  controller: App\Controller\MessageController::saveMessage
+  methods: POST

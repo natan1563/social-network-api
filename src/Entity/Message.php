@@ -116,4 +116,13 @@ class Message
             'chatId' => $this->getChatId(),
         ];
     }
+
+    public function setMessageData(Object $messageData)
+    {
+        $this->setMessage($messageData->message);
+        $this->setMessageSendAt(new DateTime());
+        $this->setUserSenderId($messageData->user_sender_id);
+        $this->setUserRecipientId($messageData->user_recipient_id);
+        $this->setChatId($messageData->chat_id);
+    }
 }

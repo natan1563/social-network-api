@@ -50,22 +50,16 @@ class UserController extends BaseController
       $requestBody = json_decode($request->getContent());
 
       $this->validator->validateProperties($this->requiredFields, $requestBody);
-
-      $userRepository = $this->entityManager->getRepository(User::class);
       $this->validator->usernameVerify($requestBody->username);
       $this->validator->celphoneVerify($requestBody->celphone);
 
       $user = new User();
-      $user->setUsername($requestBody->username);
-      $user->setCelphone($requestBody->celphone);
-      $user->setName($requestBody->name);
-      $user->setBirthDay(new DateTime($requestBody->birthday));
+      $user->setUserData($requestBody);
 
       $this->entityManager->persist($user);
       $this->entityManager->flush();
 
-      $createdUser = $this->getFormattedUsers([$userRepository->findOneBy(['username' => $user->getUsername()])]);
-      return new JsonResponse(['user' => $createdUser], 201);
+      return new JsonResponse(['user' => $user->getUserData()], 201);
     } catch (Exception $e) {
       return $this->errorManager->handlerError($e->getMessage(), $e->getCode());
     }
@@ -74,10 +68,9 @@ class UserController extends BaseController
   public function update(Request $request, int $id): Response 
   {
     try {
-      $userRepository = $this->entityManager->getRepository(User::class);
-      $user = $userRepository->find($id);
+      $userRepository = $this->entityManager->getRepository(User::class)->find($id);
 
-      if (!$user) {
+      if (!$userRepository) {
         throw new Exception("Usuário não encontrado.", 404);
       }
 
@@ -86,14 +79,10 @@ class UserController extends BaseController
       $this->validator->usernameVerify($requestBody->username, $id);
       $this->validator->celphoneVerify($requestBody->celphone, $id);
       
-      $user->setUsername($requestBody->username);
-      $user->setCelphone($requestBody->celphone);
-      $user->setName($requestBody->name);
-      $user->setBirthDay(new DateTime($requestBody->birthday));
-
+      $userRepository->setUserData($requestBody);
       $this->entityManager->flush();
-      $createdUser = $this->getFormattedUsers([$userRepository->findOneBy(['username' => $user->getUsername()])]);
-      return new JsonResponse(['user' => $createdUser], 200);
+      
+      return new JsonResponse(['user' => $userRepository->getUserData()], 200);
     } catch (Exception $e) {
       return $this->errorManager->handlerError($e->getMessage(), $e->getCode());
     }

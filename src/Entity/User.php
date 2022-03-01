@@ -112,4 +112,12 @@ class User
             'created_at' => $this->getCreatedAt()
         ];
     }
+
+    public function setUserData($requestBody)
+    {
+        $this->setUsername($requestBody->username);
+        $this->setCelphone($requestBody->celphone);
+        $this->setName($requestBody->name);
+        $this->setBirthDay(new DateTime($requestBody->birthday));
+    }
 }
